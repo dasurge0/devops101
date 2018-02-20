@@ -1,0 +1,134 @@
+# Define which registries and repositories you want available in your
+# Spinnaker pipeline definitions
+# For more info visit:
+#   https://www.spinnaker.io/setup/providers/docker-registry/
+
+# Configure your Docker registries here
+accounts:
+- name: dockerhub
+  address: https://index.docker.io
+  repositories:
+    - library/alpine
+    - library/ubuntu
+    - library/centos
+    - library/nginx
+    - smashware/site
+# - name: gcr
+#   address: https://gcr.io
+#   username: _json_key
+#   password: '<INSERT YOUR SERVICE ACCOUNT JSON HERE>'
+#   email: 1234@5678.com
+
+# Settings for notifications via email
+# For more info visit:
+#   https://www.spinnaker.io/setup/features/notifications/#email
+mail:
+  enabled: false
+  host: smtp.gmail.com
+  username:
+  password:
+  fromAddress:
+  port: 25
+
+slack:
+  enabled: false
+  token:
+  botName: 'spinnakerbot'
+
+images:
+  #clouddriver: quay.io/spinnaker/clouddriver:v1.734.0
+  clouddriver: quay.io/spinnaker/clouddriver:release-1.6.x
+  echo: quay.io/spinnaker/echo:release-1.6.x
+  #deck: quay.io/spinnaker/deck:v2.1158.0
+  deck: quay.io/spinnaker/deck:release-1.6.x
+  igor: quay.io/spinnaker/igor:release-1.6.x
+  orca: quay.io/spinnaker/orca:release-1.6.x
+  orca: quay.io/spinnaker/orca:release-1.6.x
+  gate: quay.io/spinnaker/gate:release-1.6.x
+  front50: quay.io/spinnaker/front50:release-1.6.x
+  rosco: quay.io/spinnaker/rosco:release-1.6.x
+
+# Change this if youd like to expose Spinnaker outside the cluster
+deck:
+  host: localhost
+  port: 9000
+  protocol: http
+  ingress:
+    enabled: false
+    # annotations:
+      # ingress.kubernetes.io/ssl-redirect: 'true'
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    # tls:
+    #  - secretName: -tls
+    #    hosts:
+    #      - domain.com
+
+gate:
+  allowedOriginsPattern: '^https?://(?:localhost|127.0.0.1|[^/]+\.example\.com)(?::[1-9]\d*)?/?$'
+
+# Bucket to use when storing config data in S3 compatible storage
+storageBucket: spinnaker
+
+# Change service type for UI service
+serviceType: ClusterIP
+
+# Resources to provide to each of
+# the Spinnaker components
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1280Mi
+  requests:
+    cpu: 1000m
+    memory: 1280Mi
+
+# Node labels for pod assignment
+# Ref: https://kubernetes.io/docs/user-guide/node-selection/
+# nodeSelector to provide to each of the Spinnaker components
+nodeSelector: {}
+
+# Redis password to use for the in-cluster redis service
+# Redis is not exposed publically
+redis:
+  redisPassword: password
+  nodeSelector: {}
+
+# Minio access/secret keys for the in-cluster S3 usage
+# Minio is not exposed publically
+minio:
+  enabled: true
+  imageTag: RELEASE.2016-11-26T02-23-47Z
+  serviceType: ClusterIP
+  accessKey: spinnakeradmin
+  secretKey: spinnakeradmin
+  nodeSelector: {}
+
+gcs:
+  enabled: false
+  project: my-project-name
+  jsonKey: '<INSERT CLOUD STORAGE JSON HERE>'
+
+# Configuration for the Jenkins instance that is attached to the
+# igor component of Spinnaker. For more info about the Jenkins integration
+# with Spinnaker, visit:
+#   https://www.spinnaker.io/setup/ci/jenkins/
+jenkins:
+  Master:
+    Cpu: "500m"
+    Memory: "512Mi"
+    ServiceType: ClusterIP
+    CustomConfigMap: true
+    NodeSelector: {}
+
+
+  Agent:
+    Image: "billyteves/jenkinslave-dind-kubernetes"
+    ImageTag: "latest"
+    Cpu: "500m"
+    Memory: "512Mi"
+    NodeSelector: {}
+    volumes:
+      - type: HostPath
+        hostPath: /var/run/docker.sock
+        mountPath: /var/run/docker.sock
