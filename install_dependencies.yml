@@ -10,3 +10,9 @@
         log-level: info
     - role: andrewrothstein.kubernetes-helm
       kubernetes_helm_ver: v2.7.2
+  tasks:
+    - name: Install dependencies
+      apt:
+        name: "{{ item }}"
+      with_items:
+        - socat
