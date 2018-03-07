@@ -7,4 +7,4 @@ add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $
 apt-get update
 apt-get install -y docker-ce
 docker ps
-
+usermod -G docker ${SUDO_USER:-root}
