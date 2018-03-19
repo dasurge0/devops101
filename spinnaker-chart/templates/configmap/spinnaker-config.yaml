@@ -218,8 +218,6 @@ data:
         clusterDiff: false,
         roscoMode: false,
         netflixMode: false,
-        canary: true,
-        entityTags: 'entityTagsEnabled',
         infrastructureStages: true, // Should 'createLoadBalancer' be a pipeline stage? (no).
       },
     };
@@ -422,7 +420,7 @@ data:
         #
         # Note that jenkins is not installed with Spinnaker so you must obtain this
         # on your own if you are interested.
-        enabled: true
+        enabled: {{ .Values.jenkins.enabled }}
         defaultMaster:
           name: default
           baseUrl: http://{{ .Release.Name }}-jenkins:8080/

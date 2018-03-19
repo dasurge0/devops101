@@ -12,7 +12,6 @@ accounts:
     - library/ubuntu
     - library/centos
     - library/nginx
-    - smashware/site
 # - name: gcr
 #   address: https://gcr.io
 #   username: _json_key
@@ -24,10 +23,10 @@ accounts:
 #   https://www.spinnaker.io/setup/features/notifications/#email
 mail:
   enabled: false
-  host: smtp.gmail.com
-  username:
-  password:
-  fromAddress:
+  host: smtp.example.org
+  username: admin
+  password: admin
+  fromAddress: spinnaker@example.org
   port: 25
 
 slack:
@@ -35,18 +34,16 @@ slack:
   token:
   botName: 'spinnakerbot'
 
+# Images for each component
 images:
-  #clouddriver: quay.io/spinnaker/clouddriver:v1.734.0
-  clouddriver: quay.io/spinnaker/clouddriver:release-1.6.x
-  echo: quay.io/spinnaker/echo:release-1.6.x
-  #deck: quay.io/spinnaker/deck:v2.1158.0
-  deck: quay.io/spinnaker/deck:release-1.6.x
-  igor: quay.io/spinnaker/igor:release-1.6.x
-  orca: quay.io/spinnaker/orca:release-1.6.x
-  orca: quay.io/spinnaker/orca:release-1.6.x
-  gate: quay.io/spinnaker/gate:release-1.6.x
-  front50: quay.io/spinnaker/front50:release-1.6.x
-  rosco: quay.io/spinnaker/rosco:release-1.6.x
+  clouddriver: gcr.io/spinnaker-marketplace/clouddriver:2.0.0-20180221152902
+  echo: gcr.io/spinnaker-marketplace/echo:0.8.0-20180221133510
+  deck: gcr.io/spinnaker-marketplace/deck:2.1.0-20180221143146
+  igor: gcr.io/spinnaker-marketplace/igor:0.9.0-20180221133510
+  orca: gcr.io/spinnaker-marketplace/orca:0.10.0-20180221133510
+  gate: gcr.io/spinnaker-marketplace/gate:0.10.0-20180221133510
+  front50: gcr.io/spinnaker-marketplace/front50:0.9.0-20180221133510
+  rosco: gcr.io/spinnaker-marketplace/rosco:0.5.0-20180221133510
 
 # Change this if youd like to expose Spinnaker outside the cluster
 deck:
@@ -109,94 +106,20 @@ gcs:
   project: my-project-name
   jsonKey: '<INSERT CLOUD STORAGE JSON HERE>'
 
+# Configuration for the Jenkins instance that is attached to the
+# igor component of Spinnaker. For more info about the Jenkins integration
+# with Spinnaker, visit:
+#   https://www.spinnaker.io/setup/ci/jenkins/
 jenkins:
-  Agent:
-    Image: "billyteves/jenkinslave-dind-kubernetes"
-    ImageTag: "latest"
-    Cpu: "500m"
-    Memory: "512Mi"
-    NodeSelector: {}
-    volumes:
-      - type: HostPath
-        hostPath: /var/run/docker.sock
-        mountPath: /var/run/docker.sock
-
+  enabled: true
   Master:
     Cpu: "500m"
     Memory: "512Mi"
-#    ServiceType: ClusterIP
-#    CustomConfigMap: true
-#    NodeSelector: {}
-    Jobs: |-
-      Build_and_publish_image: |-
-        <?xml version='1.0' encoding='UTF-8'?>
-        <flow-definition plugin="workflow-job@2.15">
-          <actions/>
-          <description></description>
-          <keepDependencies>false</keepDependencies>
-          <properties>
-            <hudson.model.ParametersDefinitionProperty>
-              <parameterDefinitions>
-                <hudson.model.StringParameterDefinition>
-                  <name>GIT_REPO</name>
-                  <description></description>
-                  <defaultValue></defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                  <name>GIT_BRANCH</name>
-                  <description></description>
-                  <defaultValue>master</defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                  <name>REGISTRY_USERNAME</name>
-                  <description></description>
-                  <defaultValue></defaultValue>
-                </hudson.model.StringParameterDefinition>
-                <hudson.model.PasswordParameterDefinition>
-                  <name>REGISTRY_PASSWORD</name>
-                  <description></description>
-                  <defaultValue>{AQAAABAAAAAQ9nhtoMzOOUXlbluCu25NgaV+wlveInJ5SmI4DYcZQZs=}</defaultValue>
-                </hudson.model.PasswordParameterDefinition>
-                <hudson.model.StringParameterDefinition>
-                  <name>IMAGE_TAG</name>
-                  <description></description>
-                  <defaultValue></defaultValue>
-                </hudson.model.StringParameterDefinition>
-              </parameterDefinitions>
-            </hudson.model.ParametersDefinitionProperty>
-            <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
-              <triggers/>
-            </org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>
-          </properties>
-          <definition class="org.jenkinsci.plugins.workflow.cps.CpsFlowDefinition" plugin="workflow-cps@2.45">
-            <script>podTemplate(label: &apos;mypod&apos;, containers: [
-            containerTemplate(name: &apos;docker&apos;, image: &apos;billyteves/jenkinslave-dind-kubernetes&apos;, ttyEnabled: true, command: &apos;cat&apos;),
-          ],
-          volumes: [
-            hostPathVolume(mountPath: &apos;/var/run/docker.sock&apos;, hostPath: &apos;/var/run/docker.sock&apos;),
-          ]) {
-            node(&apos;mypod&apos;) {
+    ServiceType: ClusterIP
+    CustomConfigMap: true
+    NodeSelector: {}
 
-                stage(&apos;Build and publish&apos;) {
-                    container(&apos;docker&apos;) {
-
-
-                            sh &quot;&quot;&quot;
-                                git clone ${GIT_REPO} repo
-                                cd repo
-                                git checkout ${GIT_BRANCH}
-                                docker build -t ${REGISTRY_USERNAME}/${IMAGE_TAG} .
-                                docker login -u ${REGISTRY_USERNAME} -p ${REGISTRY_PASSWORD}
-                                docker push ${REGISTRY_USERNAME}/${IMAGE_TAG}
-                                &quot;&quot;&quot;
-
-                    }
-                }
-
-
-            }
-        }</script>
-            <sandbox>true</sandbox>
-          </definition>
-          <triggers/>
-          <disabled>false</disabled>
+  Agent:
+    Cpu: "500m"
+    Memory: "512Mi"
+    NodeSelector: {}
