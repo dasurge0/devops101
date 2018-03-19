@@ -12,7 +12,7 @@ accounts:
     - library/ubuntu
     - library/centos
     - library/nginx
-    - lxie321/site
+    - <dockerid>/site
 # - name: gcr
 #   address: https://gcr.io
 #   username: _json_key
