@@ -298,15 +298,26 @@ data:
         cron:
           enabled: true
         notifications:
-          # allow pipeline triggers to run periodically via cron expressions
-          # If you wish for spinnaker to send notifications, configure the following blocks
           mail:
-            enabled: {{ .Values.mail.enabled }}
+            enabled: true
             host: {{ .Values.mail.host }}
-            username: {{ .Values.mail.username }}
-            password: {{ .Values.mail.password }}
+            from: {{ .Values.mail.fromAddress }}
+            port: 25
             fromAddress: {{ .Values.mail.fromAddress }}
-            port: {{ .Values.mail.port }}
+          spring:
+            mail:
+              username: {{ .Values.mail.username }}
+              password: {{ .Values.mail.password }}
+              properties:
+                mail:
+                  smtp:
+                    auth: true
+                    ssl:
+                      enable: {{ .Values.mail.ssl }}
+                    socketFactory:
+                      port: {{ .Values.mail.password }}
+                      class: javax.net.ssl.SSLSocketFactory
+                      fallback: false
           hipchat:
             enabled: false
             url: # the hipchat server to connect to
