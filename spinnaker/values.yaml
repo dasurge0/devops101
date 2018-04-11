@@ -24,11 +24,10 @@ accounts:
 #   https://www.spinnaker.io/setup/features/notifications/#email
 mail:
   enabled: true
-  host: aspmx.l.google.com
-  username: notification@smashware.io
-  password:
-  fromAddress: notification@smashware.io
-  ssl: true
+  host: smtp.example.org
+  username: admin
+  password: admin
+  fromAddress: spinnaker@example.org
   port: 25
 
 slack:
