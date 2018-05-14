@@ -12,7 +12,7 @@ accounts:
     - library/ubuntu
     - library/centos
     - library/nginx
-    - <dockerid>/site
+    - <dockerID>/site
 # - name: gcr
 #   address: https://gcr.io
 #   username: _json_key
@@ -23,7 +23,7 @@ accounts:
 # For more info visit:
 #   https://www.spinnaker.io/setup/features/notifications/#email
 mail:
-  enabled: true
+  enabled: false
   host: smtp.example.org
   username: admin
   password: admin
